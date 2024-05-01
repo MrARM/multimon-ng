@@ -83,10 +83,19 @@ struct l2_state_fmsfsk {
     uint32_t rxbitcount; // counts RXed bits
 };
 
+struct l2_state_fedfsk {
+    unsigned char rxbuf[512];
+    unsigned char *rxptr;
+    uint32_t rxstate; // used to track the SYNC pattern
+    uint64_t rxbitstream; // holds RXed bits
+    uint32_t rxbitcount; // counts RXed bits
+};
+
 struct demod_state {
     const struct demod_param *dem_par;
     union {
         struct l2_state_fmsfsk fmsfsk;
+        struct l2_state_fedfsk fedfsk;
         struct l2_state_clipfsk clipfsk;
         struct l2_state_uart {
             unsigned char rxbuf[8192];
@@ -178,6 +187,12 @@ struct demod_state {
             unsigned int sphase;
             uint32_t subsamp;
         } fmsfsk;
+
+        struct l1_state_fedfsk {
+            unsigned int dcd_shreg;
+            unsigned int sphase;
+            uint32_t subsamp;
+        } fedfsk;
         
         struct l1_state_afsk12 {
             uint32_t dcd_shreg;
@@ -294,6 +309,7 @@ extern const struct demod_param demod_eas;
 extern const struct demod_param demod_ufsk1200;
 extern const struct demod_param demod_clipfsk;
 extern const struct demod_param demod_fmsfsk;
+extern const struct demod_param demod_fedfsk;
 
 extern const struct demod_param demod_afsk1200;
 extern const struct demod_param demod_afsk2400;
@@ -329,7 +345,7 @@ extern const struct demod_param demod_scope;
 #define SCOPE_DEMOD
 #endif
 
-#define ALL_DEMOD &demod_poc5, &demod_poc12, &demod_poc24, &demod_flex, &demod_flex_next, &demod_eas, &demod_ufsk1200, &demod_clipfsk, &demod_fmsfsk, \
+#define ALL_DEMOD &demod_poc5, &demod_poc12, &demod_poc24, &demod_flex, &demod_flex_next, &demod_eas, &demod_ufsk1200, &demod_clipfsk, &demod_fmsfsk, &demod_fedfsk, \
     &demod_afsk1200, &demod_afsk2400, &demod_afsk2400_2, &demod_afsk2400_3, &demod_hapn4800, \
     &demod_fsk9600, &demod_dtmf, &demod_zvei1, &demod_zvei2, &demod_zvei3, &demod_dzvei, \
     &demod_pzvei, &demod_eea, &demod_eia, &demod_ccir, &demod_morse, &demod_dumpcsv, &demod_x10 SCOPE_DEMOD
